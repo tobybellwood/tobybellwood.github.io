@@ -1,0 +1,97 @@
+ <!DOCTYPE html>
+<html>
+<head>
+	<title>Leaflet Example</title>
+	<meta charset="utf-8" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<script src="js/leaflet.js"></script>
+	<script src="js/bing.js"type="text/javascript"></script>
+
+	<script src="js/reid_SA1_geojson.js" type="text/javascript"></script>
+	
+ 	<script type="text/javascript">
+		function popup(url){
+			cuteLittleWindow = window.open(url, "littleWindow", "location=no,width=1100,height=650");  
+		}</script>
+
+	<link rel="stylesheet" href="css/leaflet.css" />
+	<!--[if lte IE 8]>
+		<link rel="stylesheet" href="css/leaflet.ie.css" />
+	<![endif]-->
+ </head>
+<body>
+	<div id="map" style="min-width: 900px; min-height: 800px"></div>
+	<script>
+		var map = L.map('map').setView([-23.7, 133.87], 4);
+		
+		var bing = new L.BingLayer("As7g5KB9UNTYuuaQ8NlVyp0bT5jFBHRmQoDDIG9S7Y-EzNuJDAmTONE8Fp5cre_M");
+		map.addLayer(bing);
+		
+		function getColor(d) {
+			return  d > 1139000 ?   '#800026':
+                    d > 00      ?   '#FED976':
+					                '#FFEDA0';
+		};
+		
+		function highlightFeature(e) {
+			var layer = e.target;
+
+			layer.setStyle({
+				weight: 2,
+				color: '#666',
+				dashArray: '',
+				fillOpacity: 0.4
+			});
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+		};
+
+		function resetHighlight(e) {
+			geojson.resetStyle(e.target);
+		};
+		
+		function zoomToFeature(e) {
+			map.fitBounds(e.target.getBounds());
+		};
+		
+		function onEachFeature(feature, layer) {
+			layer.on({
+				mouseover: highlightFeature,
+				mouseout: resetHighlight,
+				click: zoomToFeature
+			});
+			
+			var popupContent = '<a href=\"javascript:popup(\'' + feature.properties.popupContent + '#quickstats\')\" target="_blank">' + feature.properties.SA1_7DIGITCODE_2011 + '</a>'
+			layer.bindPopup(popupContent);
+
+		};
+		function style(feature) {
+			return {
+				fillColor: getColor(feature.properties.SA1_7DIGITCODE_2011),
+				weight: 2,
+				opacity: 1,
+				color: '#000000',
+				dashArray: '5',
+				fillOpacity: 0.3
+			};
+		};
+		
+		//var geojson = L.geoJson(Reid_SA1, {
+		//	style: style,
+		//	onEachFeature: onEachFeature
+		//}).addTo(map);
+		
+		var geojson = L.geoJson(Reid_SA1_geo, {
+			style: style,
+			onEachFeature: onEachFeature
+		}).addTo(map);
+		
+		map.fitBounds(geojson.getBounds());
+
+	</script>
+</body>
+</html>
